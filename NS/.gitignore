@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+*.pt
+*.pth
+*.out
+*.log
+logs/
+model/
+checkpoint/
+checkpoints/
+rollout_npz/
+data/
+*.npz
+*.mat
