@@ -7,10 +7,10 @@ import time
 import torch
 import numpy as np
 
-from torch_harmonics import RealSHT
-from torch_harmonics.examples import PdeDataset
-from torch_harmonics.examples.models.se_fano import (
-    SphericalFourierNeuralOperatorNet as FaNO,
+from models import RealSHT
+from models.dataset import PdeDataset
+from models.FaNO.fano import (
+    FaNO_Net as FaNO,
 )
 
 torch.manual_seed(333)
