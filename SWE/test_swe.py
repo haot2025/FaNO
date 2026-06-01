@@ -155,7 +155,7 @@ def autoregressive_inference(
 
 
 exp_dir = "./1h/checkpoints_FaNO_trained_on_64x128"
-ckpt_path = os.path.join(exp_dir, "ckpt87.pt")
+ckpt_path = os.path.join(exp_dir, "ckpt49.pt")
 
 model = FaNO(
     img_size=(nlat, nlon),
