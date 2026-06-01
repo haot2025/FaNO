@@ -17,11 +17,11 @@ This folder contains the minimal runnable code for FaNO on the two-dimensional i
 
 The default example assumes the Navier-Stokes data file is located at:
 
-../data/NavierStokes_V1e-5_N1200_T20.mat
+/path/to/NavierStokes_V1e-5_N1200_T20.mat
 
 ## Example FaNO evaluation
 
-python test_ns.py --ckpt ../finaltrain/model/gfno_official_aligned_base_ns_V1e-5_N1000_ep500_m8x8_w20_pr0p1_official_eval_base_samew20_pr0p10_best.pt --test_path ../data/NavierStokes_V1e-5_N1200_T20.mat --variant base --persistent_ratio 0.10 --modes1 8 --modes2 8 --width 20 --ntest 200 --batch_size 20 --sub 1 --S 64 --T_in 10 --T 10 --step 1 --tag fano_ns64_v1e5 --save_npz rollout_npz/fano_ns64_v1e5.npz
+python test_ns.py --ckpt /path/to/fano_checkpoint.pt --test_path /path/to/NavierStokes_V1e-5_N1200_T20.mat --variant base --persistent_ratio 0.10 --modes1 8 --modes2 8 --width 20 --ntest 200 --batch_size 20 --sub 1 --S 64 --T_in 10 --T 10 --step 1 --tag fano_ns64_v1e5 --save_npz rollout_npz/fano_ns64_v1e5.npz
 
 ## Expected FaNO result
 

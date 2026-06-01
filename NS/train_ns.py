@@ -1,3 +1,12 @@
+"""
+FaNO implementation for Navier-Stokes autoregressive prediction.
+
+The core modification is the FaNO spectral block, which factorizes the
+Fourier response into a dynamic branch and a persistent branch. The dynamic
+branch applies input-dependent spectral filters, while the persistent branch
+uses pooled global information to produce stable low-frequency responses.
+"""
+
 import os
 import argparse
 import numpy as np
@@ -14,7 +23,7 @@ torch.manual_seed(0)
 np.random.seed(0)
 
 
-class SpectralConv2d_GSNO(nn.Module):
+class SpectralConv2d_FaNO(nn.Module):
     def __init__(self, in_channels, out_channels, modes1, modes2,
                  persistent_ratio=0.25, variant="base"):
         super().__init__()
@@ -102,7 +111,7 @@ class SpectralConv2d_GSNO(nn.Module):
         return x
 
 
-class SimpleBlock2d_GFNO_Official(nn.Module):
+class FaNO_block(nn.Module):
     def __init__(self, modes1, modes2, width, persistent_ratio=0.25, variant="base"):
         super().__init__()
         self.modes1 = modes1
@@ -113,10 +122,10 @@ class SimpleBlock2d_GFNO_Official(nn.Module):
         # official FNO input: 10 history + x,y = 12
         self.fc0 = nn.Linear(12, self.width)
 
-        self.conv0 = SpectralConv2d_GSNO(width, width, modes1, modes2, persistent_ratio, variant)
-        self.conv1 = SpectralConv2d_GSNO(width, width, modes1, modes2, persistent_ratio, variant)
-        self.conv2 = SpectralConv2d_GSNO(width, width, modes1, modes2, persistent_ratio, variant)
-        self.conv3 = SpectralConv2d_GSNO(width, width, modes1, modes2, persistent_ratio, variant)
+        self.conv0 = SpectralConv2d_FaNO(width, width, modes1, modes2, persistent_ratio, variant)
+        self.conv1 = SpectralConv2d_FaNO(width, width, modes1, modes2, persistent_ratio, variant)
+        self.conv2 = SpectralConv2d_FaNO(width, width, modes1, modes2, persistent_ratio, variant)
+        self.conv3 = SpectralConv2d_FaNO(width, width, modes1, modes2, persistent_ratio, variant)
 
         # official FNO skip: Conv1d over flattened spatial dimension
         self.w0 = nn.Conv1d(width, width, 1)
@@ -168,10 +177,10 @@ class SimpleBlock2d_GFNO_Official(nn.Module):
         return x
 
 
-class Net2d_GFNO_Official(nn.Module):
+class FaNO(nn.Module):
     def __init__(self, modes1, modes2, width, persistent_ratio=0.25, variant="base"):
         super().__init__()
-        self.conv1 = SimpleBlock2d_GFNO_Official(
+        self.conv1 = FaNO_block(
             modes1, modes2, width,
             persistent_ratio=persistent_ratio,
             variant=variant
@@ -217,7 +226,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 tag_suffix = f"_{args.tag.strip()}" if args.tag.strip() else ""
 ratio_tag = str(args.persistent_ratio).replace(".", "p")
 path = (
-    f"gfno_official_aligned_{args.variant}_ns_V1e-5_N{args.ntrain}"
+    f"fano_official_aligned_{args.variant}_ns_V1e-5_N{args.ntrain}"
     f"_ep{args.epochs}_m{args.modes1}x{args.modes2}_w{args.width}"
     f"_pr{ratio_tag}{tag_suffix}"
 )
@@ -285,7 +294,7 @@ print("preprocessing finished, time used:", default_timer() - t0)
 gridx = gridx.to(device)
 gridy = gridy.to(device)
 
-model = Net2d_GFNO_Official(
+model = FaNO(
     args.modes1, args.modes2, args.width,
     persistent_ratio=args.persistent_ratio,
     variant=args.variant
